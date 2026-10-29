@@ -16,24 +16,15 @@ Spreadsheet bernama **i-CSR 2026 – Pemantauan Tugasan AJK** mengandungi tiga t
 
 1. Buka spreadsheet, pilih **Extensions → Apps Script**.
 2. Gantikan kandungan editor dengan keseluruhan fail `Code.gs` dan simpan.
-3. Di **Project Settings → Script properties**, tambah:
-   - `SPREADSHEET_ID`: `1XEIv25onS0202NcJSS5SdZZiYqpYTBYlbIHksbYuSf4` (pilihan; nilai ini juga telah dipasang sebagai lalai dalam `Code.gs`).
-   - `ACCESS_PASSPHRASE_HASH`: SHA-256 (huruf kecil) bagi frasa laluan jawatankuasa.
-   - `TOKEN_SECRET`: rentetan rawak sekurang-kurangnya 32 aksara.
+3. Di **Project Settings → Script properties**, tambah `SPREADSHEET_ID`: `1XEIv25onS0202NcJSS5SdZZiYqpYTBYlbIHksbYuSf4` (pilihan; nilai ini juga telah dipasang sebagai lalai dalam `Code.gs`).
 4. Jalankan `setupICSRDatabase()` sekali. Benarkan akses Google apabila diminta. Fungsi ini idempoten: rekod sedia ada dikenal pasti melalui ID dan tidak digandakan.
-
-Untuk menghasilkan hash pada komputer pentadbir (PowerShell):
-
-`[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('FRASA-ANDA'))).ToLower()`
-
-Jangan kongsi `TOKEN_SECRET` dan jangan letakkan frasa laluan dalam GitHub.
 
 ## 3. Deploy Web App
 
 1. Dalam Apps Script pilih **Deploy → New deployment**.
 2. Jenis: **Web app**.
 3. Execute as: **Me**.
-4. Who has access: **Anyone**. Ini hanya menjadikan endpoint boleh dicapai; perubahan tetap memerlukan frasa laluan dan token bertandatangan.
+4. Who has access: **Anyone**. Sistem ini tidak memerlukan log masuk.
 5. Klik **Deploy**, beri kebenaran, kemudian salin URL yang berakhir dengan `/exec`.
 6. Jika `Code.gs` diubah kemudian, pilih **Deploy → Manage deployments → Edit → New version → Deploy**.
 
@@ -48,7 +39,7 @@ Data statik dalam aplikasi asal sudah dimasukkan ke dalam setup. Status atau cat
 ## 6. Ujian
 
 1. Jalankan `setupICSRDatabase()` dua kali dan sahkan kekal 13 portfolio/150 tugasan.
-2. Log masuk pada dua pelayar berasingan.
+2. Buka aplikasi pada dua pelayar berasingan tanpa log masuk.
 3. Pelayar A tanda tugasan selesai; pelayar B tekan **Segar Semula** dan sahkan perubahan.
 4. Tambah tugasan dan edit catatan, kemudian semak baris pada `Tasks` dan `Activity_Log`.
 5. Buka tugasan yang sama pada dua pelayar. Simpan pada A, kemudian simpan versi lama pada B. B mesti menerima konflik versi dan diminta menyegar semula.
@@ -58,15 +49,13 @@ Data statik dalam aplikasi asal sudah dimasukkan ke dalam setup. Status atau cat
 
 - **URL backend belum dikonfigurasi** — gantikan placeholder dalam `index.html`.
 - **NOT_CONFIGURED** — semak Script Properties dan jalankan setup.
-- **AUTH_FAILED** — semak hash frasa laluan.
-- **AUTH_REQUIRED** — sesi lapan jam tamat; log masuk semula.
 - **VERSION_CONFLICT** — pengguna lain telah menyimpan perubahan; segar semula.
 - **Respons backend tidak sah** — pastikan URL berakhir `/exec`, deployment aktif, dan versi terkini telah dideploy.
 - **CORS/redirect** — frontend menghantar POST `text/plain` untuk mengelakkan preflight dan membenarkan redirect Apps Script. Jangan tukar kepada header JSON tersuai tanpa menguji semula.
 
 ## 8. Keselamatan
 
-GitHub Pages ialah laman awam. Kod ini tidak menyimpan kata laluan atau kunci rahsia dalam frontend. Frasa laluan disahkan di backend, dan backend mengeluarkan token bertandatangan yang tamat selepas lapan jam. Ini sesuai untuk kumpulan kecil yang berkongsi frasa laluan, tetapi bukan pengurusan identiti individu atau audit pengguna. Jika diperlukan identiti per pengguna, pembatalan akaun, MFA atau peranan berasingan, gunakan Firebase Authentication/Firestore atau aplikasi dalaman beridentiti UiTM.
+GitHub Pages dan endpoint Apps Script ialah awam. Tiada log masuk: sesiapa yang mengetahui pautan boleh membaca, menambah dan mengemas kini tugasan. Gunakan hanya jika tahap akses terbuka ini memang dikehendaki. Untuk identiti per pengguna, MFA, peranan atau audit pengguna, gunakan Firebase Authentication/Firestore atau aplikasi dalaman beridentiti UiTM.
 
 ## 9. Penyelenggaraan
 
